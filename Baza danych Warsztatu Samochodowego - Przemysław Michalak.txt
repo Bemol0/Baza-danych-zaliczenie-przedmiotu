@@ -1,0 +1,118 @@
+CREATE DATABASE Warsztat;
+USE Warsztat;
+
+-- Tabela: Klienci
+
+CREATE TABLE dbo.Klienci 
+(
+    ID_klienta INT PRIMARY KEY NOT NULL,
+    Imię VARCHAR(50) NOT NULL,
+    Nazwisko VARCHAR(50) NOT NULL,
+    Telefon VARCHAR(15) NOT NULL,
+    Adres VARCHAR(100) NOT NULL,
+    Kod_pocztowy VARCHAR(100) NOT NULL,
+    Miasto VARCHAR(100) NOT NULL,
+);
+INSERT INTO dbo.Klienci (ID_klienta, Imię, Nazwisko, Telefon, Adres, Kod_pocztowy, Miasto) 
+VALUES
+('1', 'Anna', 'Kowalska', '123456789', 'ul. Kwiatowa 1', '00-001', 'Warszawa'),
+('2', 'Jan', 'Nowak', '987654321', 'ul. Zielona 3', '30-000', 'Kraków'),
+('3', 'Maria', 'Wiśniewska', '456789123', 'ul. Słoneczna 5', '80-000', 'Gdańsk'),
+('4', 'Piotr', 'Kamiński', '321654987', 'ul. Cicha 7', '45-573', 'Wrocław'),
+('5', 'Katarzyna', 'Lewandowska', '654321789', 'ul. Wiosenna 9', '60-001', 'Poznań'),
+('6', 'Michał', 'Dąbrowski', '789123456', 'ul. Krótka 11', '90-000', 'Łódź'),
+('7', 'Agnieszka', 'Wójcik', '123789456', 'ul. Szeroka 13', '70-000', 'Szczecin'),
+('8', 'Tomasz', 'Zieliński', '987321654', 'ul. Jesienna 15', '85-000', 'Bydgoszcz'),
+('9', 'Ewa', 'Kowalczyk', '456123789', 'ul. Wąska 17', '20-000', 'Lublin'),
+('10', 'Paweł', 'Wiśniewski', '321987654', 'ul. Główna 19', '40-000', 'Katowice');
+
+-- Tabela: Samochody
+
+CREATE TABLE dbo.Samochody 
+(
+    ID_samochodu INT PRIMARY KEY,
+    Marka VARCHAR(50) NOT NULL,
+    Model VARCHAR(50) NOT NULL,
+    Rok_produkcji INT NOT NULL,
+    ID_klienta INT,
+    FOREIGN KEY (ID_klienta) REFERENCES dbo.Klienci(ID_klienta)
+);
+INSERT INTO dbo.Samochody (ID_samochodu, Marka, Model, Rok_produkcji, ID_klienta) 
+VALUES
+('1', 'Toyota', 'Corolla', 2015, 1),
+('2', 'Volkswagen', 'Golf', 2018, 2),
+('3', 'Ford', 'Mustang', 2020, 3),
+('4', 'Honda', 'Civic', 2016, 4),
+('5', 'BMW', 'X5', 2019, 5),
+('6', 'Mercedes', 'C-Class', 2017, 6),
+('7', 'Audi', 'A4', 2021, 7),
+('8', 'Chevrolet', 'Camaro', 2014, 8),
+('9', 'Nissan', 'Altima', 2013, 9),
+('10', 'Hyundai', 'Elantra', 2012, 10);
+
+-- Tabela: Pracownicy
+
+CREATE TABLE dbo.Pracownicy 
+(
+    ID_pracownika INT PRIMARY KEY,
+    Imię VARCHAR(50) NOT NULL,
+    Nazwisko VARCHAR(50) NOT NULL,
+    Stanowisko VARCHAR(50),
+    Telefon VARCHAR(15) NOT NULL
+);
+INSERT INTO Pracownicy (ID_pracownika, Imię, Nazwisko, Stanowisko, Telefon) 
+VALUES
+('1', 'Adam', 'Nowicki', 'Mechanik', '123456780'),
+('2', 'Beata', 'Kwiatkowska', 'Kierownik', '987654320'),
+('3', 'Cezary', 'Mazur', 'Mechanik', '456789120'),
+('4', 'Dorota', 'Jaworska', 'Recepcjonistka', '321654980'),
+('5', 'Edward', 'Zając', 'Mechanik', '654321780'),
+('6', 'Filip', 'Bąk', 'Mechanik', '789123450'),
+('7', 'Grzegorz', 'Halama', 'Mechanik', '123789450'),
+('8', 'Hanna', 'Szymańska', 'Recepcjonistka', '987321650'),
+('9', 'Irena', 'Pawlak', 'Kierownik', '456123780'),
+('10', 'Janusz', 'Biznesu', 'Mechanik', '321987650');
+
+-- Tabela: Naprawy
+
+CREATE TABLE dbo.Naprawy 
+(
+    ID_naprawy INT PRIMARY KEY,
+    ID_samochodu INT,
+    ID_pracownika INT,
+    Data_naprawy DATE NOT NULL,
+    Koszt DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (ID_samochodu) REFERENCES Samochody(ID_samochodu),
+    FOREIGN KEY (ID_pracownika) REFERENCES Pracownicy(ID_pracownika)
+);
+
+INSERT INTO dbo.Naprawy (ID_naprawy, ID_samochodu, ID_pracownika, Data_naprawy, Koszt) 
+VALUES
+(1, 1, 1, '2024-01-10', 150.00),
+(2, 2, 2, '2024-01-12', 200.00),
+(3, 3, 3, '2024-01-15', 250.00),
+(4, 4, 4, '2024-01-17', 300.00),
+(5, 5, 5, '2024-01-20', 350.00),
+(6, 6, 6, '2024-01-22', 400.00),
+(7, 7, 7, '2024-01-25', 450.00),
+(8, 8, 8, '2024-01-27', 500.00),
+(9, 9, 9, '2024-01-30', 550.00),
+(10, 10, 10, '2024-02-01', 600.00);
+
+-- Widok: HistoriaNapraw
+
+CREATE VIEW dbo.HistoriaNapraw 
+AS
+SELECT 
+    Klienci.Imię AS Imię_klienta,
+    Klienci.Nazwisko AS Nazwisko_klienta,
+    Samochody.Marka,
+    Samochody.Model,
+    Pracownicy.Imię AS Imię_pracownika,
+    Pracownicy.Nazwisko AS Nazwisko_pracownika,
+    Naprawy.Data_naprawy,
+    Naprawy.Koszt
+FROM dbo.Naprawy
+JOIN dbo.Samochody ON dbo.Naprawy.ID_samochodu = dbo.Samochody.ID_samochodu
+JOIN dbo.Klienci ON dbo.Samochody.ID_klienta = dbo.Klienci.ID_klienta
+JOIN dbo.Pracownicy ON dbo.Naprawy.ID_pracownika = dbo.Pracownicy.ID_pracownika;
